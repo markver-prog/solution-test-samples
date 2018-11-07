@@ -55,6 +55,7 @@ You can retrieve the "service_instance_id" using the ibmcloud CLI:
 ibmcloud resource service-instance "Key Protect-rc" -id 
 (where "Key Protect-rc" is the name of the KP instance you created).
 This will output something called a .crn., which has the service ID at the end of it. 
+
    {
        "service_host": "keyprotect.us-south.bluemix.net",
        "service_instance_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -65,6 +66,7 @@ Here is the format of the input Key Protect API key file (-a option), which
 is the same format as provided by the Key Protect service. You do not need
 to create this file yourself, you can simply download it through the UI at the 
 time you create the API key for the service.
+
    {
        "name": "SampleAPIKey",
        "description": "A sample for test purposes",
