@@ -21,6 +21,7 @@ is the same format as provided by the Key Protect service:
 
 Developed and tested on Linux on System z using python 2.7.12.
 """
+from __future__ import print_function
 import sys, optparse, time, httplib, urllib, json, socket
 import os, string, time, base64, copy
 import uuid
@@ -44,16 +45,16 @@ def get_access_token(api_key):
         conn.request("POST", "/oidc/token", params, headers)
         response = conn.getresponse()
     except socket.error as errno:
-        print "Error attempting to connect to Cloud Identity and Access Management to get access token"
-        print errno
+        print("Error attempting to connect to Cloud Identity and Access Management to get access token")
+        print(errno)
         sys.exit()
 
     if response.status == 200:
         if not quiet:
-            print ">>> Acquired access token at", time.strftime("%m/%d/%Y %H:%M:%S")
+            print(">>> Acquired access token at", time.strftime("%m/%d/%Y %H:%M:%S"))
     else:
-        print "Failed to aquire access token. Ensure API key passed in via input file is correct"
-        print "status", response.status, "reason", response.reason
+        print("Failed to aquire access token. Ensure API key passed in via input file is correct")
+        print("status", response.status, "reason", response.reason)
         sys.exit()
 
     #get the json object and convert to a python object
@@ -62,9 +63,9 @@ def get_access_token(api_key):
     expiration   = objs['expiration']
 
     if extraverbose:
-       print "Access token:", access_token
+       print("Access token:", access_token)
     if verbose:
-       print "Token expires:", time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(expiration))
+       print("Token expires:", time.strftime("%m/%d/%Y %H:%M:%S", time.localtime(expiration)))
 
     conn.close()
 
@@ -97,16 +98,16 @@ def get_key_list(correlation_id, host, instance_id, access_token):
         conn.request("GET", "/api/v2/keys", "", headers)
         response = conn.getresponse()
     except socket.error as errno:
-        print "Socket error attempting to connect to Key Protect service to get list of keys"
-        print errno
+        print("Socket error attempting to connect to Key Protect service to get list of keys")
+        print(errno)
         sys.exit()
     except:
-        print "Unexpected error attempting to connect to Key Protect service to get list of keys"
+        print("Unexpected error attempting to connect to Key Protect service to get list of keys")
         raise
 
     if response.status == 200:
         if not quiet:
-            print "Retrieved list of stored keys", time.strftime("%m/%d/%Y %H:%M:%S")
+            print("Retrieved list of stored keys", time.strftime("%m/%d/%Y %H:%M:%S"))
         #get the json object and convert to a python object
         objs = json.loads(response.read())
         if 'resources' in objs:
@@ -125,13 +126,13 @@ def get_key_list(correlation_id, host, instance_id, access_token):
             need_new_token = True
             key_id = ""
             if not quiet:
-                print "get_key_list: Redrive loop, must get a new access token, the old one is expired..."
+                print("get_key_list: Redrive loop, must get a new access token, the old one is expired...")
         else:
-            print "Failed to get list of root keys"
-            print "Status:", response.status, "reason:", response.reason
-            print "Correlation id=", headers['correlation-id']
-            print "Key Protect instance ID:", instance_id
-            print "Error Message:", error_msg[0]['errorMsg']
+            print("Failed to get list of root keys")
+            print("Status:", response.status, "reason:", response.reason)
+            print("Correlation id=", headers['correlation-id'])
+            print("Key Protect instance ID:", instance_id)
+            print("Error Message:", error_msg[0]['errorMsg'])
             sys.exit()
 
     conn.close()
@@ -173,15 +174,15 @@ def get_key_id(correlation_id, host, instance_id, access_token, key_name):
           if k['name'] == key_name:
              key_id = k['id']
              if not quiet:
-                print "Found desired key in list of stored keys"
+                print("Found desired key in list of stored keys")
 
                 if verbose:
-                   print "List of stored keys found:"
+                   print("List of stored keys found:")
                    for k in key_list:
-                      print "   Key name:", k['name'], "with ID:", k['id']
+                      print("   Key name:", k['name'], "with ID:", k['id'])
 
        if key_id == "NOT FOUND" and not quiet:
-          print "Desired key", key_name, "not found in list of stored keys"
+          print("Desired key", key_name, "not found in list of stored keys")
             
     return key_id, need_new_token
 
@@ -244,18 +245,18 @@ def create_key(correlation_id, host, instance_id, access_token, key_alias, extra
         conn.request("POST", "/api/v2/keys", request_string_body,  headers)
         response = conn.getresponse()
     except socket.error as errno:
-        print "Socket error attempting to connect to Key Protect service to create a key"
-        print errno
+        print("Socket error attempting to connect to Key Protect service to create a key")
+        print(errno)
         sys.exit()
     except:
-        print "Unexpected error attempting to connect to Key Protect service to create a key"
+        print("Unexpected error attempting to connect to Key Protect service to create a key")
         raise
 
     if response.status == 201:
         if extractable and not quiet:
-            print "Created standard key", time.strftime("%m/%d/%Y %H:%M:%S")
+            print("Created standard key", time.strftime("%m/%d/%Y %H:%M:%S"))
         elif not quiet:
-            print "Created root key", time.strftime("%m/%d/%Y %H:%M:%S")
+            print("Created root key", time.strftime("%m/%d/%Y %H:%M:%S"))
 
         #get the json object and convert to a python object
         objs = json.loads(response.read())
@@ -265,16 +266,16 @@ def create_key(correlation_id, host, instance_id, access_token, key_alias, extra
                 if k['name'] == key_alias:
                     key_id = k['id']
                 if verbose:
-                    print "   Key name:", k['name']
-                    print "   Key id:", k['id']
-                    print "   Key algorithm type:", k['algorithmType']
+                    print("   Key name:", k['name'])
+                    print("   Key id:", k['id'])
+                    print("   Key algorithm type:", k['algorithmType'])
 
         else:
-            print "Error generating key. 'Resources' not in the returned json object"
+            print("Error generating key. 'Resources' not in the returned json object")
             sys.exit() 
 
         if key_id == "":
-            print "Error: key created with incorrect name"
+            print("Error: key created with incorrect name")
             sys.exit()            
 
     else:
@@ -290,16 +291,16 @@ def create_key(correlation_id, host, instance_id, access_token, key_alias, extra
             error_msg[0] == "Bad Request: Token is expired"):
             need_new_token = True
             if not quiet:
-                print "create_key: Redrive loop, must get a new access token, the old one is expired..."
+                print("create_key: Redrive loop, must get a new access token, the old one is expired...")
         else:
             if extractable:
-                print "Failed to create a standard key"
+                print("Failed to create a standard key")
             else:
-                print "Failed to create a root key"
-            print "Status", response.status, "reason", response.reason
-            print "Correlation id=", headers['correlation-id']
-            print "Key Protect instance ID:", instance_id
-            print "Error Message:", error_msg[0]['errorMsg']
+                print("Failed to create a root key")
+            print("Status", response.status, "reason", response.reason)
+            print("Correlation id=", headers['correlation-id'])
+            print("Key Protect instance ID:", instance_id)
+            print("Error Message:", error_msg[0]['errorMsg'])
             sys.exit()
 
     conn.close()
@@ -357,15 +358,15 @@ def import_key(correlation_id, host, instance_id, access_token, key_alias, key_m
         conn.request("POST", "/api/v2/keys", request_string_body,  headers)
         response = conn.getresponse()
     except socket.error as errno:
-        print "Socket error attempting to connect to Key Protect service to import a key"
-        print errno
+        print("Socket error attempting to connect to Key Protect service to import a key")
+        print(errno)
         sys.exit()
     except:
-        print "Unexpected error attempting to connect to Key Protect service to import a key"
+        print("Unexpected error attempting to connect to Key Protect service to import a key")
         raise
 
     if response.status == 201:
-        print "Imported root key", time.strftime("%m/%d/%Y %H:%M:%S")
+        print("Imported root key", time.strftime("%m/%d/%Y %H:%M:%S"))
 
         #get the json object and convert to a python objecto
         objs = json.loads(response.read())
@@ -375,16 +376,16 @@ def import_key(correlation_id, host, instance_id, access_token, key_alias, key_m
                 if k['name'] == key_alias:
                     key_id = k['id']
                 if verbose:
-                    print "   Key name:", k['name']
-                    print "   Key id:", k['id']
-                    print "   Key algorithm type:", k['algorithmType']
+                    print("   Key name:", k['name'])
+                    print("   Key id:", k['id'])
+                    print("   Key algorithm type:", k['algorithmType'])
 
         else:
-            print "Error importing key. 'Resources' not in the returned json object"
+            print("Error importing key. 'Resources' not in the returned json object")
             sys.exit()
 
         if key_id == "":
-            print "Error: key imported with incorrect name"
+            print("Error: key imported with incorrect name")
             sys.exit()
     else:
         try:
@@ -399,13 +400,13 @@ def import_key(correlation_id, host, instance_id, access_token, key_alias, key_m
             error_msg[0] == "Bad Request: Token is expired"):
             need_new_token = True
             if not quiet:
-                print "import_key: Redrive loop, must get a new access token, the old one is expired..."
+                print("import_key: Redrive loop, must get a new access token, the old one is expired...")
         else:
-            print "Failed to import a root key"
-            print "Status", response.status, "reason", response.reason
-            print "Correlation id=", headers['correlation-id']
-            print "Key Protect instance ID:", instance_id
-            print "Error Message:", error_msg[0]['errorMsg']
+            print("Failed to import a root key")
+            print("Status", response.status, "reason", response.reason)
+            print("Correlation id=", headers['correlation-id'])
+            print("Key Protect instance ID:", instance_id)
+            print("Error Message:", error_msg[0]['errorMsg'])
             sys.exit()
 
     conn.close()
@@ -472,20 +473,20 @@ def wrap_unwrap_key(correlation_id, host, instance_id, access_token, wrap_key_id
                      action, request_string_body,  headers)
         response = conn.getresponse()
     except socket.error as errno:
-        print "Socket error attempting to connect to Key Protect service to wrap or unwrap a key"
-        print errno
+        print("Socket error attempting to connect to Key Protect service to wrap or unwrap a key")
+        print(errno)
         sys.exit()
     except:
-        print "Unexpected error attempting to connect to Key Protect service to wrap or unwrap a key"
+        print("Unexpected error attempting to connect to Key Protect service to wrap or unwrap a key")
         raise
 
     if response.status == 200:
         if wrap and keytext == "" and not quiet:
-            print "Generated a wrapped data encrytion key", time.strftime("%m/%d/%Y %H:%M:%S")
+            print("Generated a wrapped data encrytion key", time.strftime("%m/%d/%Y %H:%M:%S"))
         elif wrap and not quiet:
-            print "Wrapped a data encrytion key", time.strftime("%m/%d/%Y %H:%M:%S")
+            print("Wrapped a data encrytion key", time.strftime("%m/%d/%Y %H:%M:%S"))
         elif not quiet:
-            print "Unwrapped a data encryption key", time.strftime("%m/%d/%Y %H:%M:%S")
+            print("Unwrapped a data encryption key", time.strftime("%m/%d/%Y %H:%M:%S"))
 
         #get the json object and convert to a python object
         objs = json.loads(response.read())
@@ -497,9 +498,9 @@ def wrap_unwrap_key(correlation_id, host, instance_id, access_token, wrap_key_id
 
         if extraverbose:
             if wrap:
-                print "Wrapped data encryption key, base64 encoded:", key_output_text
+                print("Wrapped data encryption key, base64 encoded:", key_output_text)
             else:
-                print "Unwrapped data encryption key, base64 encoded:", key_output_text
+                print("Unwrapped data encryption key, base64 encoded:", key_output_text)
  
     else:
         key_output_text = ""
@@ -515,18 +516,18 @@ def wrap_unwrap_key(correlation_id, host, instance_id, access_token, wrap_key_id
             (error_msg[0]['errorMsg'] == 'Bad Request: Token is expired')):
             need_new_token = True
             if not quiet:
-                print "wrap_unwrap_key: Redrive loop, must get a new access token, the old one is expired..."
+                print("wrap_unwrap_key: Redrive loop, must get a new access token, the old one is expired...")
         else:
             if wrap and keytext == "":
-                print "Failed to generate a wrapped data encryption key"
+                print("Failed to generate a wrapped data encryption key")
             elif wrap:
-                print "Failed to wrap a data encryption key"
+                print("Failed to wrap a data encryption key")
             else:
-                print "Failed to unwrap a data encryption key"
-            print "Status", response.status, "reason", response.reason
-            print "Correlation id=", headers['correlation-id']
-            print "Key Protect instance ID:", instance_id
-            print "Error Message:", error_msg[0]['errorMsg']
+                print("Failed to unwrap a data encryption key")
+            print("Status", response.status, "reason", response.reason)
+            print("Correlation id=", headers['correlation-id'])
+            print("Key Protect instance ID:", instance_id)
+            print("Error Message:", error_msg[0]['errorMsg'])
             sys.exit()
 
     conn.close()
@@ -554,7 +555,7 @@ def delete_root_keys(correlation_id, host, instance_id, access_token):
     need_new_token = False
     
     if not quiet:
-       print "Attempting to delete all root keys owned by Key Protect instance", instance_id, "..."
+       print("Attempting to delete all root keys owned by Key Protect instance", instance_id, "...")
 
     key_list, need_new_token = get_key_list(correlation_id, 
                                             host, 
@@ -563,9 +564,9 @@ def delete_root_keys(correlation_id, host, instance_id, access_token):
 
     if not need_new_token:
        if not quiet:
-          print "List of stored keys found:"
+          print("List of stored keys found:")
           for k in key_list:
-             print "   Key name:", k['name'], "with ID:", k['id']
+             print("   Key name:", k['name'], "with ID:", k['id'])
 
        conn = httplib.HTTPSConnection(host)
        for k in key_list:    # Delete each key
@@ -575,11 +576,11 @@ def delete_root_keys(correlation_id, host, instance_id, access_token):
               conn.request("DELETE", "/api/v2/keys/" + key_id, "", headers)
               response = conn.getresponse()
           except socket.error as errno:
-              print "Socket error attempting to connect to Key Protect service to delete root keys"
-              print errno
+              print("Socket error attempting to connect to Key Protect service to delete root keys")
+              print(errno)
               sys.exit()
           except:
-              print "Unexpected error attempting to connect to Key Protect service to deleter root keys"
+              print("Unexpected error attempting to connect to Key Protect service to deleter root keys")
               raise
 
           if response.status == 200:
@@ -590,9 +591,9 @@ def delete_root_keys(correlation_id, host, instance_id, access_token):
                 key_deleted = resource_dict[0]['deleted'] # 'key deleted successfully' flag
                 if key_deleted:
                    if not quiet:
-                      print "Deleted root key", key_name, "with ID", key_id, "at", time.strftime("%m/%d/%Y %H:%M:%S")
+                      print("Deleted root key", key_name, "with ID", key_id, "at", time.strftime("%m/%d/%Y %H:%M:%S"))
                 else:
-                   print "Attempt to delete key", key_name, "with ID", key_id, "was unsuccessful"
+                   print("Attempt to delete key", key_name, "with ID", key_id, "was unsuccessful")
 
           else:  # error cases
               objs = json.loads(response.read())
@@ -609,14 +610,14 @@ def delete_root_keys(correlation_id, host, instance_id, access_token):
                   need_new_token = True
                   key_id = ""
                   if not quiet:
-                      print "get_key_list: Redrive loop, must get a new access token, the old one is expired..."
+                      print("get_key_list: Redrive loop, must get a new access token, the old one is expired...")
                   break # exit the FOR loop
               else:
-                  print "Failed to delete root key", key_name, "with ID", key_id
-                  print "Status:", response.status, "reason:", response.reason
-                  print "Correlation id=", headers['correlation-id']
-                  print "Key Protect instance ID:", instance_id
-                  print "Error Message:", error_msg[0]['errorMsg']
+                  print("Failed to delete root key", key_name, "with ID", key_id)
+                  print("Status:", response.status, "reason:", response.reason)
+                  print("Correlation id=", headers['correlation-id'])
+                  print("Key Protect instance ID:", instance_id)
+                  print("Error Message:", error_msg[0]['errorMsg'])
                   sys.exit()
 
           conn.close()
@@ -633,8 +634,8 @@ def print_progress(count, total):
 
     percent_complete = float(count) / total * 100
     if percent_complete > 10 and percent_complete < 100:  # a cheat for back spacing
-        print int(percent_complete), "percent complete",
-        print "\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b",   # back space
+        print(int(percent_complete), "percent complete", end=' ')
+        print("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b", end=' ')   # back space
         sys.stdout.flush()
     return
 
@@ -649,22 +650,22 @@ def read_input_file(file):
     try:
         cred = json.load(open(file))
     except IOError as errno:
-        print "Error attempting to open input file", file
-        print "Ensure file exists"
+        print("Error attempting to open input file", file)
+        print("Ensure file exists")
         sys.exit()
     except:
-        print "Unexpected error trying to open input file", file, sys.exc_info()[0]
+        print("Unexpected error trying to open input file", file, sys.exc_info()[0])
         raise
 
     service_host = cred['service_host'].strip() 
     service_instance_id = cred['service_instance_id'].strip()
     root_key_name = cred['root_key_name'].strip()
 
-    print "\nRead the following from input file", file, ":"
-    print "   Service host:", service_host
-    print "   Service instance ID:", service_instance_id
-    print "   Root key name:", root_key_name, "\n"
-	
+    print("\nRead the following from input file", file, ":")
+    print("   Service host:", service_host)
+    print("   Service instance ID:", service_instance_id)
+    print("   Root key name:", root_key_name, "\n")
+    
     return service_host, service_instance_id, root_key_name
 
 ############################################################################
@@ -678,11 +679,11 @@ def read_apikey_file(file):
     try:
         cred = json.load(open(file))
     except IOError as errno:
-        print "Error attempting to open api key file", file
-        print "Ensure file exists"
+        print("Error attempting to open api key file", file)
+        print("Ensure file exists")
         sys.exit()
     except:
-        print "Unexpected error trying to open api key file", file, sys.exc_info()[0]
+        print("Unexpected error trying to open api key file", file, sys.exc_info()[0])
         raise
 
     # the UI generates an apikey file with "apiKey" as a key, 
@@ -783,7 +784,7 @@ if __name__ == "__main__":
     while r <= repeat:
         # Print loop counter only if quiet mode not enabled by user.
         if not quiet:
-            print "\n*** Pass", r, "***\n"
+            print("\n*** Pass", r, "***\n")
 
         if token_expired:
             # get access token needed for invoking Key Protect API
@@ -834,7 +835,7 @@ if __name__ == "__main__":
                    continue   # redrive loop to get a new access token
 
             else:
-                print "Please confirm root key name in input file, or specify the -c option if you want me to create the root key, or -i option if you want me to import a root key"
+                print("Please confirm root key name in input file, or specify the -c option if you want me to create the root key, or -i option if you want me to import a root key")
 
                 sys.exit()
         #*******************************************************
@@ -900,7 +901,7 @@ if __name__ == "__main__":
         cipher = AES.new(unwrapped_DEK, AES.MODE_ECB)
         decrypted_msg = cipher.decrypt(encrypted_msg)
         if not quiet:
-            print "Message decrypted with unwrapped generated DEK:", decrypted_msg
+            print("Message decrypted with unwrapped generated DEK:", decrypted_msg)
 
         #*************************************
         # finish up this pass through the loop
@@ -913,19 +914,19 @@ if __name__ == "__main__":
 
         r = r + 1     # increment the loop counter
 
-r = r - 1    # adjust for output	
+r = r - 1    # adjust for output    
 if r == 1:
-    print
-    print "1 pass through script completed successfully."
+    print()
+    print("1 pass through script completed successfully.")
 else:
-    print
-    print r, "passes through script completed successfully."
+    print()
+    print(r, "passes through script completed successfully.")
 
 # If user requsted all root keys to be deleted upon program completion,
 # then delete them.
 if deleteAll:
-   print "Main program loop completed"
-   print
+   print("Main program loop completed")
+   print()
    delete_attempted = False
    while not delete_attempted:
       token_expired = delete_root_keys(correlation_id, # try to delete keys
@@ -939,10 +940,7 @@ if deleteAll:
           token_expired = False
       else: 
           delete_attempted = True # exit loop
-          print "All root keys have been successfully deleted for Key Protect instance", service_instance_id
+          print("All root keys have been successfully deleted for Key Protect instance", service_instance_id)
 
-print
-print "Script completed at", time.strftime("%H:%M:%S")
-
-
-
+print()
+print("Script completed at", time.strftime("%H:%M:%S"))
