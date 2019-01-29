@@ -1,4 +1,4 @@
-Backup/Restore scripts for IBM Z CPCs
+Backup/Restore scripts for IBM Z CPCs that are running in DPM mode.
 
 This branch contains scripts related to backup/restore partitions and storage groups managed by HMC, the scripts are followed and verified by HMC Web Services API Version 2.14.1, and the supported partition types include Linux and Secure Services Container.
 
