@@ -1,5 +1,10 @@
-This python script exercises various aspects of the IBM Cloud Key Protect service
-through its REST API.
+This python script exercises various aspects of the IBM Cloud 
+Hyper Protect Crypto Services (HPCS) Key Protect service through its REST API.
+This script works equally well with HPCS Key Protect and standard Key Protect, since
+the REST APIs are the same. The only difference is that since each HPCS instance 
+has a unique API endpoint URI, HPCS provides the ability to dynamically
+determine what that endpoint is. So, if this script finds that a null string 
+was passed in for the service host, it will attempt to retrieve it dynamically. 
 
 The high level flow is:
 1.  Contact the Cloud Identity and Access Management service to get an access token, 
@@ -55,6 +60,28 @@ You can retrieve the "service_instance_id" using the ibmcloud CLI:
 ibmcloud resource service-instance "Key Protect-rc" -id 
 (where "Key Protect-rc" is the name of the KP instance you created).
 This will output something called a .crn., which has the service ID at the end of it. 
+
+This example passes in a null service_host, which tells the script
+to dynamically retrieve the connection info (this does not work for
+standard Key Protect, it is a unique function for HPCS Key Protect):
+
+    {
+    "service_host": "",
+    "service_instance_id": "fb5af3ea-e10b-42e9-a1e5-c97404e96feb",
+    "root_key_name":"SolutionTestRootKey"
+    }
+
+This example passes in a specific service_host for HPCS Key Protect
+(this is normally not needed, the null string example above is
+all that is needed for HPCS Key Protect instances):
+
+    {
+    "service_host": "us-south.hpcs.cloud.ibm.com:11399",
+    "service_instance_id": "fb5af3ea-e10b-42e9-a1e5-b97404e96feb",
+    "root_key_name":"SolutionTestRootKey"
+    }
+
+This example passes in a service_host for standard Key Protect:
 
     {
     "service_host": "keyprotect.us-south.bluemix.net",

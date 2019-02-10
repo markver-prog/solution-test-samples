@@ -1,8 +1,27 @@
 #! /usr/bin/env python
-""" This python script exercises various aspects of the IBM Cloud Key Protect service
-through its REST API.
+""" This python script exercises various aspects of the IBM Cloud 
+Hyper Protect Crypto Services (HPCS) Key Protect service through its REST API.
 
-Here is the format of the input file (-f option), with example input shown:
+Here is the format of the input file (-f option), with example input shown. 
+This example passes in a null service_host, which tells the script 
+to dynamically retrieve the connection info (this does not work for
+standard Key Protect, it is a unique function for HPCS Key Protect):
+{
+    "service_host": "",
+    "service_instance_id": "fb5af3ea-e10b-42e9-a1e5-c97404e96feb",
+    "root_key_name":"SolutionTestRootKey"
+}
+
+This example passes in a specific service_host for HPCS Key Protect
+(this is normally not needed, the null string example above is
+all that is needed for HPCS Key Protect instances):
+{
+    "service_host": "us-south.hpcs.cloud.ibm.com:11399",
+    "service_instance_id": "fb5af3ea-e10b-42e9-a1e5-b97404e96feb",
+    "root_key_name":"SolutionTestRootKey"
+}
+
+This example passes in a service_host for standard Key Protect:
 {
     "service_host": "keyprotect.us-south.bluemix.net",
     "service_instance_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
@@ -70,6 +89,69 @@ def get_access_token(api_key):
     conn.close()
 
     return access_token
+
+# ##########################################################################
+# get_api_endpoint_url function
+# ##########################################################################
+def get_api_endpoint_uri(instance_id, access_token):
+    '''Contact zcryptobroker to get the Key Protect API endpoint URI (url:port).
+
+       Input is an instance ID for our crypto instance,
+       an access token for the user's Key Protect service, and
+       the uri of the zcryptobroker to connect to.
+    '''
+    broker   = 'zcryptobroker.mybluemix.net'
+
+    headers = {
+              "authorization":"Bearer " + access_token,
+    }
+
+    need_new_token = False
+    conn = httplib.HTTPSConnection(broker)
+    try:
+        conn.request("GET", "/crypto_v1/instances/" + instance_id, "", headers)
+        response = conn.getresponse()
+    except socket.error as errno:
+        print ("Socket error attempting to connect to zcryptobroker service to get API endpoint URI")
+        print (errno)
+        sys.exit()
+    except:
+        print ("Unexpected error attempting to connect to zcryptobroker service to get API endpoint URI")
+        raise
+
+    if response.status == 200:
+        if not quiet:
+            print ("Retrieved API endpoint URI", time.strftime("%m/%d/%Y %H:%M:%S"))
+        # get the json object and convert to a python object
+        objs = json.loads(response.read())
+        # now get the connection info...
+        if 'apiConnectionInfo' in objs:
+            api_endpoint_uri  = objs['apiConnectionInfo'] # get the uri
+    else:
+        try:
+           objs = json.loads(response.read())
+           error_msg = objs['resources']
+        except ValueError, e:
+           error_msg = {}
+           error_msg[0] = {}
+           error_msg[0]['errorMsg'] = 'No error message text returned'
+
+        if ((response.status == 401) and
+            (error_msg[0]['errorMsg'] == 'Unauthorized: Token is expired')):
+            need_new_token = True
+            key_id = ""
+            if not quiet:
+                print ("get_api_endpoint_uri: Redrive loop, must get a new access token, the old one is expired...")
+        else:
+            print ("Failed to get API endpoint URI")
+            print ("Status:", response.status, "reason:", response.reason)
+            print ("Key Protect instance ID:", instance_id)
+            print ("Error Message:", error_msg[0]['errorMsg'])
+            sys.exit()
+
+    conn.close()
+    return api_endpoint_uri, need_new_token
+
 
 # ##########################################################################
 # get_key_list function
@@ -774,11 +856,20 @@ if __name__ == "__main__":
     # read input api key file to get the api key for the Key Protect service
     api_key = read_apikey_file(apikey_filename)
 
+    # Get an access token we can use to retrieve the API endpoint URI
+    access_token = get_access_token(api_key)
+    token_expired = False
+
+    # Now, if no service host was passed in the input file,
+    # then retrieve the API endpoint URI for us to connect to
+    if service_host == "":
+       print ("No service host passed as input, acquiring connection info...")
+       service_host, token_expired = get_api_endpoint_uri(service_instance_id, access_token)
+       print ("Using service host", service_host)
+
     # if asked to import a customer root key, define base64-encoded key material to import
     if import_key_if_required:
-       importable_customer_root_key_base64 = "eyJjaXBoZXJ0ZXh0IjoiQUU3SW9pZG1RNTV1NTgvbWFwZUdTWXNuVllFak5lRTJUQkhVUVdaNUhwRU9tN0lUZ2pWa0taWDBUY1k9IiwiaGFzaCI6Ijl1Zk5wejV4VmhZTENIK3U5SmxRY0J2dC9Zczh2MUpNUEZHcjRTUXNsOGVKUXBjcm1xZTJDeFIwRjZNL3Jialk4RnFjRmhkWHRvTHYvaFU1N2NhWFFnPT0iLCJpdiI6ImhzRVZUcUN3OU4ycEQ1VmxWT2wxbFE9PSIsInZlcnNpb24iOiIyLjAuMCJ9"
-
-    token_expired = True     # need a new access token the first time through
+       importable_customer_root_key_base64 = "NzcwQThBNjVEQTE1NkQyNEVFMkEwOTMyNzc1MzAxNDI=" # This is a 256 bit key
 
     r = 1                    # define loop counter
     while r <= repeat:
