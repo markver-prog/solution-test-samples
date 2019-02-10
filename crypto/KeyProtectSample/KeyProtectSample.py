@@ -215,6 +215,9 @@ def get_key_list(correlation_id, host, instance_id, access_token):
             print("Correlation id=", headers['correlation-id'])
             print("Key Protect instance ID:", instance_id)
             print("Error Message:", error_msg[0]['errorMsg'])
+            if response.status == 404:
+               print(">>> If this is a new HPCS instance, ensure you have initialized it with a master key via the ibmcloud tke cli")
+
             sys.exit()
 
     conn.close()
