@@ -48,7 +48,7 @@ The available options (in no particular order) are:
                             Key Protect instance upon completion of the
                             program. Default: Do not delete keys.
     --file, -f filename     Path to input file. Default: KPinfo.json
-    -apifile, -a filename   Path to input apiKey file. Default: apiKeyKP.json
+    --apifile, -a filename   Path to input apiKey file. Default: apiKeyKP.json
     --createkey, -c         Create root key if inputted root key not found
                             in Key Protect. Incompatible with --importkey option.
     --importkey, -i         Import a (predefined) root key if inputted root key
