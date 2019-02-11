@@ -51,27 +51,27 @@ Output:
 Here is the format of the output Key Protect API key file (`-a` option), which
 is the same format as provided by the IAM service:
 
-   {
-   "name": "SampleAPIKey",
-   "description": "A sample for test purposes",
-   "createdAt": "2018-03-21T17:15+0000",
-   "apikey": "xxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-   }
+    {
+    "name": "SampleAPIKey",
+    "description": "A sample for test purposes",
+    "createdAt": "2018-03-21T17:15+0000",
+    "apikey": "xxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
 
 Here is the format of the output file for an HPCS instance (`-o` option):
 
-   {
-   "service_host": "",
-   "service_instance_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-   "root_key_name":"SampleRootKey"
-   }
+    {
+    "service_host": "",
+    "service_instance_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "root_key_name":"SampleRootKey"
+    }
 
 Here is the format of an output file for a standard Key Protect instance (`-o` option):
 
-   {
-   "service_host": "keyprotect.us-south.bluemix.net",
-   "service_instance_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-   "root_key_name":"SampleRootKey"
-   }
+    {
+    "service_host": "keyprotect.us-south.bluemix.net",
+    "service_instance_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "root_key_name":"SampleRootKey"
+    }
 
 
