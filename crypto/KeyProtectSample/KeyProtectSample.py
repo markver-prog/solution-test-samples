@@ -8,7 +8,7 @@ to dynamically retrieve the connection info (this does not work for
 standard Key Protect, it is a unique function for HPCS Key Protect):
 {
     "service_host": "",
-    "service_instance_id": "fb5af3ea-e10b-42e9-a1e5-c97404e96feb",
+    "service_instance_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "root_key_name":"SolutionTestRootKey"
 }
 
@@ -17,7 +17,7 @@ This example passes in a specific service_host for HPCS Key Protect
 all that is needed for HPCS Key Protect instances):
 {
     "service_host": "us-south.hpcs.cloud.ibm.com:11399",
-    "service_instance_id": "fb5af3ea-e10b-42e9-a1e5-b97404e96feb",
+    "service_instance_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
     "root_key_name":"SolutionTestRootKey"
 }
 
