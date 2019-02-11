@@ -12,8 +12,8 @@ The high level flow is:
 2.  Have Key Protect search for a requested Customer Root Key (CRK) and return
     its ID, if found.
 3.  If the CRK is not found, then either:
-      a. Ask Key Protect to generate a CRK, OR
-      b. Import the user's own CRK into Key Protect
+       * a. Ask Key Protect to generate a CRK, OR
+       * b. Import the user's own CRK into Key Protect
 4.  Have Key Protect generate and return a Data Encryption Key (DEK) wrapped 
     (encrypted) using the CRK
 5.  Have Key Protect unwrap the DEK
@@ -28,7 +28,7 @@ The high level flow is:
 
 Input:
 1. The IBM Cloud Key Protect service information is provided via a file 
-(by default called 'KPinfo.json').
+(by default called `KPinfo.json`).
 2. A file containing the api key for the Key Protect service
 
 The user can also specify options when invoking the script.
@@ -36,7 +36,7 @@ The available options (in no particular order) are:
 
     --version               Print the version of this script and exit
     --help, -h              Prints help info and exits
-    --quiet, -q             Show progress count instead of repetetive messages
+    --quiet, -q             Show progress count instead of repetitive messages
     --verbose, -v           Show more details in stdout
     --extraverbose, -x      In addition to verbose output, also show 
                             tokens and keys
@@ -48,18 +48,20 @@ The available options (in no particular order) are:
                             Key Protect instance upon completion of the
                             program. Default: Do not delete keys.
     --file, -f filename     Path to input file. Default: KPinfo.json
-    --apifile, -a filename   Path to input apiKey file. Default: apiKeyKP.json
+    --apifile, -a filename  Path to input apiKey file. Default: apiKeyKP.json
     --createkey, -c         Create root key if inputted root key not found
                             in Key Protect. Incompatible with --importkey option.
     --importkey, -i         Import a (predefined) root key if inputted root key
                             not found in Key Protect. Incompatible with
                             --createkey option.
 
-Here is the format of the input file (-f option), with example input shown. 
-You can retrieve the "service_instance_id" using the ibmcloud CLI: 
+Here is the format of the input file (`-f` option), with example input shown. 
+You can retrieve the "service_instance_id" using the ibmcloud CLI:
+```
 ibmcloud resource service-instance "Key Protect-rc" -id 
+```
 (where "Key Protect-rc" is the name of the KP instance you created).
-This will output something called a .crn., which has the service ID at the end of it. 
+This will output something called a `.crn.`, which has the service ID at the end of it. 
 
 This example passes in a null service_host, which tells the script
 to dynamically retrieve the connection info (this does not work for
@@ -89,7 +91,7 @@ This example passes in a service_host for standard Key Protect:
     "root_key_name":"SampleRootKey"
     }
 
-Here is the format of the input Key Protect API key file (-a option), which
+Here is the format of the input Key Protect API key file (`-a` option), which
 is the same format as provided by the Key Protect service. You do not need
 to create this file yourself, you can simply download it through the UI at the 
 time you create the API key for the service.
