@@ -39,13 +39,14 @@ The available options (in no particular order) are:
                   Default for HPCS Key Protect: apiKeyHpcsKP.json"
                   Default for standard Key Protect: apiKeyStandardKP.json"
 
-Output: 1. A new service instance
-        2. IAM service policy for authorizing access to the instance
-        3. An API key for the instance for accessing Key Protect services
-        4. A json file containing an API key for accessing
-           the Key Protect services
-        5. A json output file that provides other initializaton data
-           for KeyProtectSample.py
+Output: 
+  1. A new service instance
+  2. IAM service policy for authorizing access to the instance
+  3. An API key for the instance for accessing Key Protect services
+  4. A json file containing an API key for accessing
+     the Key Protect services
+  5. A json output file that provides other initializaton data
+     for KeyProtectSample.py
 
 Here is the format of the output Key Protect API key file (`-a` option), which
 is the same format as provided by the IAM service:
